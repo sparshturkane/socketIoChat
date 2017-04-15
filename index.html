@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+        <script src="/socket.io/socket.io.js" ></script>
+        <title> ney</title>
+    </head>
+    <body>
+        <!-- list of users -->
+        <div>
+            <ul id="userList">
+
+            </ul>
+        </div>
+
+        <!-- user name  enter-->
+        <div>
+            <form id="userNameForm">
+                <label>Enter UserName</label>
+                <input type="text" id="userName">
+                <input type="submit" name="" value="submit userName">
+            </form>
+        </div>
+        <br>
+        <!-- send message form -->
+        <div>
+            <form id="messageFrom">
+                <input type="text" name="" value="" id="message">
+                <br>
+                <input type="submit" name="submit" value="submit">
+            </form>
+        </div>
+
+        <!-- messages -->
+        <div>
+            <ul id="chat">
+            </ul>
+        </div>
+
+        <script>
+            $(function() {
+                var socket = io.connect();
+                var messageFrom = $('#messageFrom');
+                var message = $('#message');
+                var chat = $('#chat');
+                var userNameForm = $('#userNameForm');
+                var userName = $('#userName');
+                var userList = $('#userList');
+
+                messageFrom.submit(function(e) {
+                    e.preventDefault();
+                    console.log('Submitted: '+message.val());
+                    // emiting 'send message' from client
+                    socket.emit('send message',message.val());
+                    message.val('');
+                });
+
+                // catching that new message emitted from server
+                socket.on('new message', function(data) {
+                    chat.append('<li>'+data.msg+'</li>')
+                });
+
+                // user name
+                userNameForm.submit(function(e) {
+                    e.preventDefault();
+                    console.log('userName: '+userName.val());
+                    socket.emit('user name', userName.val());
+                    userName.val('');
+                });
+
+                // getting users list from client
+                socket.on('new user',function(data) {
+                    userList.empty();
+                    console.log(data);
+                    for(var i = 0; i < data.users.length; i++){
+                        userList.append('<li>'+data.users[i]+'</li>');
+                    }
+                });
+
+            });
+        </script>
+    </body>
+</html>
