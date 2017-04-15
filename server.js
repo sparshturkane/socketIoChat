@@ -13,6 +13,14 @@ var dbConnection = mysql.createConnection({
     database: 'fbstatus'
 });
 
+var pool  = mysql.createPool({
+    connectionLimit : 10,
+    host            : 'localhost',
+    user            : 'root',
+    password        : '123456',
+    database        : 'fbstatus'
+});
+
 dbConnection.connect();
 // declaring arrays
 users=[];
@@ -48,13 +56,18 @@ io.sockets.on('connection', function(socket) {
         // INSERT INTO table_name (column1, column2, column3, ...)
         // VALUES (value1, value2, value3, ...);
 
-        dbConnection.query('INSERT INTO fbstatus (s_text) VALUES (?)', [data], function (error, results, fields) {
-            // error will be an Error if one occurred during the query
-            // results will contain the results of the query
-            // fields will contain information about the returned results fields (if any)
-            if (error) throw error;
-        });
+        // dbConnection.query('INSERT INTO fbstatus (s_text) VALUES (?)', [data], function (error, results, fields) {
+        //     // error will be an Error if one occurred during the query
+        //     // results will contain the results of the query
+        //     // fields will contain information about the returned results fields (if any)
+        //     if (error) throw error;
+        // });
         // dbConnection.end();
+
+        pool.query('INSERT INTO fbstatus (s_text) VALUES (?)', [data], function (error, results, fields) {
+            if (error) throw error;
+            // console.log('The solution is: ', rows[0].solution);
+        });
     });
 
     // geting userName from client
